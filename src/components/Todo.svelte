@@ -2,9 +2,11 @@
     import type {ITodo} from '$root/types/todo'
 
     type CompletedTodoType = (id: string) => void
+    type RemoveTodoType = (id: string) => void
 
     export let todo: ITodo
     export let completeTodo: CompletedTodoType
+    export let removeTodo: RemoveTodoType
 </script>
 
 <li class="todo">
@@ -19,8 +21,9 @@
         </div>
 
         <!-- 클래스가 completed라면 todo.completed 적용(?) 여기는 좀 더 생각해봐야합니다. -->
+        <!-- 클래스 적용시 todo.completed가 true(참)이라면 completed 클래스 적용 -->
         <span class:completed={todo.completed} class="todo-text">{todo.text}</span>
-        <button aria-label="Remove todo" class="remove"></button>
+        <button on:click={()=>removeTodo(todo.id)} aria-label="Remove todo" class="remove"></button>
     </div>
     <!-- <input class="edit" type="text" autofocus> -->
   </li>
