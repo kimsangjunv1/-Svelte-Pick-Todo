@@ -7,6 +7,9 @@
     // id를 가지고 완료를 하는 item을 만들기 위해 Todo 가져옴
     import Todo from './Todo.svelte'
 
+    import TodosLeft from './TodosLeft.svelte'
+
+
     // 평소할일 : 배열로 저장
     let todos: ITodo[] = [
         { id: '1e4a59703af84', text: 'Todo 1', completed: true },
@@ -20,6 +23,9 @@
 
     // 계산
     $: todosAmount = todos.length
+
+    // 아직 완료된 지않은 할일 목록 갯수
+    $: incompleteTodos = todos.filter(todo => !todo.completed).length
     
     // 메서드 : 랜덤으로 숫자 생성 후 총 16자리를 생성후 자름(?) 아이디 값 생성
     function generateRandomId(): string {
@@ -42,7 +48,7 @@
     function toggleCompleted(event: MouseEvent): void{
         let {checked} = event.target as HTMLInputElement
 
-        todos = todos.map(todo => ({
+        todos = todos.map((todo) => ({
             ...todo,
             completed: checked
         }))
@@ -60,6 +66,7 @@
 
     // 할일 목록 삭제 함수
     function removeTodo(id: string): void{
+      // todo의 id가 id와 같지 않은것만 반환해라.
       todos = todos.filter(todo => todo.id !== id)
     }
 
@@ -87,7 +94,7 @@
                 {/each}
                 
                 <div class="actions">
-                    <span class="todo-count">0 left</span>
+                    <TodosLeft {incompleteTodos} />
                     <div class="filters">
                         <button class="filter">All</button>
                         <button class="filter">Active</button>
