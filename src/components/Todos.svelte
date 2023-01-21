@@ -4,6 +4,8 @@
 
     // AddTodo 가져오기
     import AddTodo from './AddTodo.svelte';
+    // id를 가지고 완료를 하는 item을 만들기 위해 Todo 가져옴
+    import Todo from './Todo.svelte'
 
     // 평소할일 : 배열로 저장
     let todos: ITodo[] = [
@@ -19,11 +21,42 @@
     // 계산
     $: todosAmount = todos.length
     
-    // 메서드 : 랜덤으로 숫자 생성 후 총 16자리를 생성후 자름(?)
+    // 메서드 : 랜덤으로 숫자 생성 후 총 16자리를 생성후 자름(?) 아이디 값 생성
     function generateRandomId(): string {
         return Math.random().toString(16).slice(2)
     }
+
+    // 이 함수는 todo라는 변수에 string만 사용 가능하게 하였습니다
+    function addTodo(todo: string): void {
+        let newTodo: ITodo = {
+            id: generateRandomId(),
+            // 상단의 타입 선언 덕분에 text는 string만 올 수 있게 되었다.
+            text: todo,
+            completed: false,
+        }
+        // 기존 배열(...todos)에 새로운 값(newTodo)을 추가
+        todos = [...todos, newTodo]
+    }
     
+    // 이 함수는 event라는 변수에 MouseEvent만 사용 할 수 있게 하엿습니다.
+    function toggleCompleted(event: MouseEvent): void{
+        let {checked} = event.target as HTMLInputElement
+
+        todos = todos.map(todo => ({
+            ...todo,
+            completed: checked
+        }))
+    }
+
+    // 할일을 완료했을때 함수
+    function completeTodo(id: string): void {
+      todos = todos.map(todo => {
+        if(todo.id === id){
+          todo.completed = !todo.completed
+        }
+        return todo
+      })
+    }
 </script>
 
 <main>
@@ -32,23 +65,15 @@
 
     <section class="todos">
         
-        <AddTodo />
-        <ul class="todo-list">
-            {#each todos as todo (todo.id)}
-            <li class="todo">
-                <div class="todo-item">
-                    <div>
-                        <!-- 할일이 완료되었는지 여부 -->
-                        <input checked={todo.completed} id="todo" class="toggle" type="checkbox">
+        <AddTodo {addTodo} {toggleCompleted} {todosAmount} />
 
-                        <!-- 아리아 라벨을 통해 스크린 리더가 어떤것인지 설명 할 수 있도록 -->
-                        <label aria-label="Check todo" class="todo-check" for="todo" />
-                    </div>
-                    <span class="todo-text">{todo.text}</span>
-                    <button aria-label="Remove todo" class="remove"></button>
-                </div>
-                <!-- <input class="edit" type="text" autofocus> -->
-
+        <!-- 만약 투두 어마운트에 값이 있다면 -->
+        {#if todosAmount}
+            <ul class="todo-list">
+                {#each todos as todo (todo.id)}
+                  <Todo {todo} {completeTodo} />
+                {/each}
+                
                 <div class="actions">
                     <span class="todo-count">0 left</span>
                     <div class="filters">
@@ -58,9 +83,8 @@
                     </div>
                     <button class="clear-completed">Clear Completed</button>
                 </div>
-            </li>
-            {/each}
-        </ul>
+            </ul>
+        {/if}
     </section>
 </main>
 
@@ -113,94 +137,7 @@
         0 17px 2px -6px hsla(0, 0%, 0%, 0.2);
       z-index: -1;
     }
-  
-    
-    /* Todo */
-  
-    .todo {
-      font-size: var(--font-24);
-      font-weight: 400;
-      border-bottom: 1px solid #ededed;
-    }
-  
-    .todo:last-child {
-      border-bottom: none;
-    }
-  
-    .todo-check,
-    .todo-text {
-      display: block;
-      padding: var(--spacing-16);
-      color: var(--color-gray-28);
-      transition: color 0.4s;
-    }
-  
-    .todo-check {
-      border-radius: 100%;
-    }
-  
-    .completed {
-      color: var(--color-gray-58);
-      text-decoration: line-through;
-    }
-  
-    .todo-item {
-      position: relative;
-      display: flex;
-      align-items: center;
-      padding: 0 var(--spacing-8);
-    }
-  
-    .editing .todo-item {
-      display: none;
-    }
-  
-    .edit {
-      width: 100%;
-      padding: var(--spacing-8);
-      font-size: var(--font-24);
-      border: 1px solid #999;
-      border-radius: var(--radius-base);
-      box-shadow: inset 0 -1px 5px 0 var(--shadow-1);
-    }
-  
-    .toggle {
-      position: absolute;
-      top: 26px;
-      left: 13px;
-      transform: scale(2);
-      opacity: 0;
-    }
-  
-    .toggle + label {
-      background-image: url('data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2240%22%20height%3D%2240%22%20viewBox%3D%22-10%20-18%20100%20135%22%3E%3Ccircle%20cx%3D%2250%22%20cy%3D%2250%22%20r%3D%2250%22%20fill%3D%22none%22%20stroke%3D%22%23949494%22%20stroke-width%3D%223%22/%3E%3C/svg%3E');
-      background-repeat: no-repeat;
-      background-position: 84% 50%;
-    }
-  
-    .toggle:checked + label {
-      background-image: url('data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2240%22%20height%3D%2240%22%20viewBox%3D%22-10%20-18%20100%20135%22%3E%3Ccircle%20cx%3D%2250%22%20cy%3D%2250%22%20r%3D%2250%22%20fill%3D%22none%22%20stroke%3D%22%2359A193%22%20stroke-width%3D%223%22%2F%3E%3Cpath%20fill%3D%22%233EA390%22%20d%3D%22M72%2025L42%2071%2027%2056l-4%204%2020%2020%2034-52z%22%2F%3E%3C%2Fsvg%3E');
-    }
-  
-    .remove {
-      display: none;
-      margin-left: auto;
-      font-size: var(--font-32);
-      color: var(--color-gray-58);
-      transition: color 0.2s ease-out;
-    }
-  
-    .remove:hover {
-      color: var(--color-highlight);
-    }
-  
-    .remove:after {
-      content: '×';
-    }
-  
-    .todo:hover .remove {
-      display: block;
-    }
+
   
     /* Filters */
   
