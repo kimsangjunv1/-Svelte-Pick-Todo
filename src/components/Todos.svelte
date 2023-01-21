@@ -1,11 +1,29 @@
 <script lang="ts">
+    // 타입 스크립트를 통한 타입 지정
+    import type {ITodo} from '$root/types/todo'
+
+    // AddTodo 가져오기
+    import AddTodo from './AddTodo.svelte';
+
     // 평소할일 : 배열로 저장
-    let todos = [
+    let todos: ITodo[] = [
         { id: '1e4a59703af84', text: 'Todo 1', completed: true },
         { id: '9e09bcd7b9349', text: 'Todo 2', completed: false },
         { id: '9e4273a51a37c', text: 'Todo 3', completed: false },
         { id: '53ae48bf605cc', text: 'Todo 4', completed: false },
     ]
+
+    // 디버깅 : 변경된 값 확인 용
+    $: console.log(todos)
+
+    // 계산
+    $: todosAmount = todos.length
+    
+    // 메서드 : 랜덤으로 숫자 생성 후 총 16자리를 생성후 자름(?)
+    function generateRandomId(): string {
+        return Math.random().toString(16).slice(2)
+    }
+    
 </script>
 
 <main>
@@ -13,14 +31,8 @@
     <h1 class="title">스벨트 투두!</h1>
 
     <section class="todos">
-        <form action="">
-            <input type="checkbox" id="toggle-all" class="toggle-all">
-            <label aria-label="Mark all as complete" for="toggle-all">
-                Mark all as complete
-            </label>
-            <input id="new-todo" class="new-todo" placeholder="what is your anwr?"  type="text" autofocus>
-        </form>
-
+        
+        <AddTodo />
         <ul class="todo-list">
             {#each todos as todo (todo.id)}
             <li class="todo">
@@ -102,42 +114,7 @@
       z-index: -1;
     }
   
-    /* Add todo */
-  
-    .toggle-all {
-      width: 1px;
-      height: 1px;
-      position: absolute;
-      opacity: 0;
-    }
-  
-    .toggle-all + label {
-      position: absolute;
-      font-size: 0;
-    }
-  
-    .toggle-all + label:before {
-      content: '❯';
-      display: block;
-      padding: var(--spacing-16);
-      font-size: var(--font-24);
-      color: var(--color-gray-58);
-      transform: rotate(90deg);
-    }
-  
-    .toggle-all:checked + label:before {
-      color: var(--color-gray-28);
-    }
-  
-    .new-todo {
-      width: 100%;
-      padding: var(--spacing-16);
-      padding-left: 60px;
-      font-size: var(--font-24);
-      border: none;
-      border-bottom: 1px solid var(--shadow-1);
-    }
-  
+    
     /* Todo */
   
     .todo {
