@@ -1,6 +1,6 @@
 <script lang="ts">
     // 타입 스크립트를 통한 타입 지정
-    import type {ITodo} from '$root/types/todo'
+    import type {FiltersType, ITodo} from '$root/types/todo'
 
     // AddTodo 가져오기
     import AddTodo from './AddTodo.svelte';
@@ -9,6 +9,8 @@
 
     import TodosLeft from './TodosLeft.svelte'
 
+    //
+    import FilterTodos from './FilterTodos.svelte'
 
     // 평소할일 : 배열로 저장
     let todos: ITodo[] = [
@@ -18,6 +20,8 @@
         { id: '53ae48bf605cc', text: 'Todo 4', completed: false },
     ]
 
+    let selectedFilter: FiltersType = 'all'
+
     // 디버깅 : 변경된 값 확인 용
     $: console.log(todos)
 
@@ -26,6 +30,8 @@
 
     // 아직 완료된 지않은 할일 목록 갯수
     $: incompleteTodos = todos.filter(todo => !todo.completed).length
+
+    $: filteredTodos = filterTodos(todos, selectedFilter)
     
     // 메서드 : 랜덤으로 숫자 생성 후 총 16자리를 생성후 자름(?) 아이디 값 생성
     function generateRandomId(): string {
@@ -76,6 +82,24 @@
       let currentTodo = todos.findIndex((todo) => todo.id === id)
       todos[currentTodo].text = newTodo
     }
+
+    function setFilter(newFilter: FiltersType): void {
+      selectedFilter = newFilter
+    }
+    function filterTodos(todos: ITodo[], filter: FiltersType): ITodo[]{
+      switch (filter) {
+        // 함수가 돌아가는 중이니 break를 사용해 탈출을 할 필요가 없다(?)
+        // filter가 all 일경우 todos 반환
+        case 'all':
+          return todos
+        // filter가 active일경우 todos에서 !todo.completed가 false가 아닌 값만 찾기
+        case 'active':
+          return todos.filter(todo => !todo.completed)
+          // filter가 active일경우 todos에서 !todo.completed가 true인 값만 찾기
+        case 'completed':
+          return todos.filter(todo => todo.completed)
+      }
+    }
 </script>
 
 <main>
@@ -89,17 +113,13 @@
         <!-- 만약 투두 어마운트에 값이 있다면 -->
         {#if todosAmount}
             <ul class="todo-list">
-                {#each todos as todo (todo.id)}
+                {#each filteredTodos as todo (todo.id)}
                   <Todo {todo} {completeTodo} {removeTodo} {editTodo} />
                 {/each}
                 
                 <div class="actions">
                     <TodosLeft {incompleteTodos} />
-                    <div class="filters">
-                        <button class="filter">All</button>
-                        <button class="filter">Active</button>
-                        <button class="filter">Completed</button>
-                    </div>
+                    <FilterTodos {selectedFilter} {setFilter} />
                     <button class="clear-completed">Clear Completed</button>
                 </div>
             </ul>
@@ -155,28 +175,5 @@
         0 9px 1px -3px hsla(0, 0%, 0%, 0.2), 0 16px 0 -6px hsl(0, 0%, 96%),
         0 17px 2px -6px hsla(0, 0%, 0%, 0.2);
       z-index: -1;
-    }
-
-  
-    /* Filters */
-  
-    .filters {
-      display: flex;
-      gap: var(--spacing-4);
-    }
-  
-    .filter {
-      text-transform: capitalize;
-      padding: var(--spacing-4) var(--spacing-8);
-      border: 1px solid transparent;
-      border-radius: var(--radius-base);
-    }
-  
-    .filter:hover {
-      border: 1px solid var(--color-highlight);
-    }
-  
-    .selected {
-      border-color: var(--color-highlight);
     }
   </style>
