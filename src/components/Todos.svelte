@@ -51,15 +51,23 @@
     // 할일을 완료했을때 함수
     function completeTodo(id: string): void {
       todos = todos.map(todo => {
-        if(todo.id != id){
+        if(todo.id === id){
           todo.completed = !todo.completed
         }
         return todo
       })
     }
 
+    // 할일 목록 삭제 함수
     function removeTodo(id: string): void{
-      todos = todos.filter(todo => todo.id != id)
+      todos = todos.filter(todo => todo.id !== id)
+    }
+
+    // 할일 목록 편집 함수
+    function editTodo(id: string, newTodo: string): void {
+      // 현재 할일을 가져옴
+      let currentTodo = todos.findIndex((todo) => todo.id === id)
+      todos[currentTodo].text = newTodo
     }
 </script>
 
@@ -75,7 +83,7 @@
         {#if todosAmount}
             <ul class="todo-list">
                 {#each todos as todo (todo.id)}
-                  <Todo {todo} {completeTodo} {removeTodo} />
+                  <Todo {todo} {completeTodo} {removeTodo} {editTodo} />
                 {/each}
                 
                 <div class="actions">
