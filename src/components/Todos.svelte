@@ -12,6 +12,8 @@
     //
     import FilterTodos from './FilterTodos.svelte'
 
+    import ClearTodos from './ClearTodos.svelte'
+
     // 평소할일 : 배열로 저장
     let todos: ITodo[] = [
         { id: '1e4a59703af84', text: 'Todo 1', completed: true },
@@ -32,6 +34,8 @@
     $: incompleteTodos = todos.filter(todo => !todo.completed).length
 
     $: filteredTodos = filterTodos(todos, selectedFilter)
+
+    $: completedTodos = todos.filter(todo => todo.completed).length
     
     // 메서드 : 랜덤으로 숫자 생성 후 총 16자리를 생성후 자름(?) 아이디 값 생성
     function generateRandomId(): string {
@@ -100,6 +104,10 @@
           return todos.filter(todo => todo.completed)
       }
     }
+
+    function clearCompleted():void {
+      todos = todos.filter(todo => todo.completed !== true)
+    }
 </script>
 
 <main>
@@ -110,9 +118,10 @@
         
         <AddTodo {addTodo} {toggleCompleted} {todosAmount} />
 
-        <!-- 만약 투두 어마운트에 값이 있다면 -->
+        <!-- 만약 투두 어마운트에 값이 있다면 하단의 node를 출력 -->
         {#if todosAmount}
             <ul class="todo-list">
+                <!-- filteredTodos에 저장된 값을 todo의 todo.id를 통해 Todo를 가져온다(?) -->
                 {#each filteredTodos as todo (todo.id)}
                   <Todo {todo} {completeTodo} {removeTodo} {editTodo} />
                 {/each}
@@ -120,7 +129,7 @@
                 <div class="actions">
                     <TodosLeft {incompleteTodos} />
                     <FilterTodos {selectedFilter} {setFilter} />
-                    <button class="clear-completed">Clear Completed</button>
+                    <ClearTodos {clearCompleted} {completedTodos} />
                 </div>
             </ul>
         {/if}
